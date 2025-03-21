@@ -85,6 +85,7 @@ build/
 **/ios/Flutter/flutter_export_environment.sh
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
+ios/Flutter/*.xcconfig
 
 # Android related
 **/android/**/gradle-wrapper.jar
@@ -109,6 +110,7 @@ build/
 **/macos/Flutter/GeneratedPluginRegistrant.swift
 **/macos/Flutter/ephemeral/
 **/xcuserdata/
+macos/Flutter/*.xcconfig
 
 # IDE and Editor specific files
 *.iml
