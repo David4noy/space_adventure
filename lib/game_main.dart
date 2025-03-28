@@ -1,13 +1,17 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:space_adventure/components/asteroid.dart';
 import 'package:space_adventure/components/player.dart';
 
 class GameMain extends FlameGame {
 
   late Player player;
   late JoystickComponent joystick;
+  late SpawnComponent _asteroidSpawner;
+  final _random = Random();
 
   @override
   Future<void> onLoad() async {
@@ -23,6 +27,7 @@ class GameMain extends FlameGame {
   void startGame() async {
     await _createJoystick();
     _createPlayer();
+    _createAsteroidSpawner();
   }
 
   void _createPlayer() {
@@ -44,8 +49,24 @@ class GameMain extends FlameGame {
         size: Vector2.all(100),
       ),
       anchor: Anchor.bottomLeft,
-      position: Vector2(20, size.y - 20)
+      position: Vector2(20, size.y - 20),
+      priority: 10
     );
     add(joystick);
+  }
+
+  void _createAsteroidSpawner() {
+    _asteroidSpawner = SpawnComponent.periodRange(
+      factory: (index) => Asteroid(position: _generateSpawnPosition()),
+      minPeriod: 0.7, 
+      maxPeriod: 1.2,
+      selfPositioning: true,
+    );
+    
+    add(_asteroidSpawner);
+  }
+
+  Vector2 _generateSpawnPosition() {
+    return Vector2(10 - _random.nextDouble() * (size.x - 10 * 2), -100);
   }
 }
