@@ -1,13 +1,21 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
+import 'package:flutter/material.dart';
+import 'package:space_adventure/components/explosion.dart';
 import 'package:space_adventure/game_main.dart';
 
-class Asteroid extends SpriteComponent with HasGameReference<GameMain>  {
+class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
   final _random = Random();
-  static const double _maxSize = 120;
+  static const double _maxSize = 100;
   late Vector2 _velocity;
+  final _originalVelocity = Vector2.zero();
   late double _spinSpeed;
+  final double _maxHealth = 3;
+  late double _health;
+  bool _isKnockBack = false;
 
   Asteroid({required super.position, double size = _maxSize}) 
     : super (
@@ -15,9 +23,13 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain>  {
         anchor: Anchor.center,
         priority: -1,
       ) {
-        _velocity = _generateVelocity();
-        _spinSpeed = _random.nextDouble() * 1.5 - 0.75;
-      }
+
+    _velocity = _generateVelocity();
+    _originalVelocity.setFrom(_velocity);
+    _spinSpeed = _random.nextDouble() * 1.5 - 0.75;
+    _health = size / _maxSize * _maxHealth;
+    add(CircleHitbox(collisionType: CollisionType.passive));
+  }
 
   @override
   FutureOr<void> onLoad() async {
@@ -39,7 +51,7 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain>  {
 
     return Vector2(
       _random.nextDouble() * 120 - 60, 
-      100 + _random.nextDouble() * 50,
+      50 + _random.nextDouble() * 50,
     ) * forceSize;
   }
 
@@ -53,6 +65,73 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain>  {
       position.x = screenWidth + size.x / 2;
     } else if (position.x > screenWidth + size.x / 2) {
       position.x = -size.x / 2;
+    }
+  }
+
+  void takeDamage({int damage = 1}) {
+    _health -= damage;
+
+    if (_health <= 0) {
+      game.incrementScore(3);
+      removeFromParent();
+      _createExplosion();
+      _splitAsteroid();
+    } else {
+      game.incrementScore(_health > 1 ? 1 : 2);
+      _flashWhite();
+      _applyKnockBack();
+    }
+  }
+
+  void _flashWhite() {
+    final flashEffect = ColorEffect(
+      Colors.white, 
+      EffectController(
+        duration: 0.1,
+        alternate: true,
+        curve: Curves.easeInOut,
+      )
+    );
+    add(flashEffect);
+  }
+
+  void _applyKnockBack() {
+    if (_isKnockBack) return;
+    _isKnockBack = true;
+    _velocity.setZero();
+
+    final knockBackEffect = MoveByEffect(
+      Vector2(0, -20), 
+      EffectController(duration: 0.1),
+      onComplete: _restoreVelocity
+    );
+    add(knockBackEffect);
+  }
+
+  void _restoreVelocity() {
+    _velocity.setFrom(_originalVelocity);
+    _isKnockBack = false;
+  }
+
+  void  _createExplosion() {
+    final explosion = Explosion(
+      position: position.clone(), 
+      explosionType: ExplosionType.dust, 
+      explosionSize: size.x
+    );
+
+    game.add(explosion);
+  }
+
+  void _splitAsteroid() {
+    if (size.x <= _maxSize / 3) return;
+
+    for (var i = 0; i < 3; i++) {
+      final fragment = Asteroid(
+        position: position.clone(),
+        size: size.x - _maxSize / 3,
+      );
+      game.add(fragment);
     }
   }
 }
