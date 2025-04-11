@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:space_adventure/components/asteroid.dart';
 import 'package:space_adventure/components/pickup.dart';
 import 'package:space_adventure/components/player.dart';
-import 'package:space_adventure/components/shoot_button.dart';
+// import 'package:space_adventure/components/shoot_button.dart';
 import 'package:space_adventure/components/star.dart';
 
 class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDetection {
@@ -19,9 +19,11 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
   late SpawnComponent _asteroidSpawner;
   late SpawnComponent _pickupSpawner;
   final _random = Random();
-  late ShootButton _shootButton;
+  // late ShootButton _shootButton;
   int _score = 0;
   late TextComponent _scoreDisplay;
+  final List<String> playerColor = ['blue', 'red', 'green', 'purple'];
+  int playerColorIndex = 0;
 
   @override
   Future<void> onLoad() async {
@@ -30,8 +32,6 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     await Flame.device.setPortrait();
 
     _createStars();
-
-    startGame();
 
     return super.onLoad();
   }
@@ -70,13 +70,13 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     add(joystick);
   }
 
-  void _createShootButton() {
-    _shootButton = ShootButton()
-    ..anchor = Anchor.bottomLeft
-    ..position = Vector2(20, size.y - 20)
-    ..priority = 10;
-    add(_shootButton);
-  }
+  // void _createShootButton() {
+  //   _shootButton = ShootButton()
+  //   ..anchor = Anchor.bottomLeft
+  //   ..position = Vector2(20, size.y - 20)
+  //   ..priority = 10;
+  //   add(_shootButton);
+  // }
 
   void _createAsteroidSpawner() {
     _asteroidSpawner = SpawnComponent.periodRange(
@@ -177,6 +177,20 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
 
     _createPlayer();
 
+    resumeEngine();
+  }
+
+  void quitGame() {
+     children.whereType<PositionComponent>().forEach((component){
+      if (component is! Star) {
+        remove(component);
+      }
+    });
+
+    remove(_asteroidSpawner);
+    remove(_pickupSpawner);
+
+    overlays.add('Title');
     resumeEngine();
   }
 }

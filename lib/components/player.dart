@@ -26,6 +26,7 @@ class Player extends SpriteAnimationComponent
   late Timer _explosionTimer;
   late Timer _laserPowerupTimer;
   Shield? activeShield;
+  late String _color;
 
   Player() {
     _explosionTimer = Timer(
@@ -43,6 +44,7 @@ class Player extends SpriteAnimationComponent
 
   @override
   Future<void> onLoad() async {
+    _color = game.playerColor[game.playerColorIndex];
 
     animation = await _loadAnimation();
 
@@ -71,7 +73,7 @@ class Player extends SpriteAnimationComponent
     }
 
     final Vector2 movements = game.joystick.relativeDelta + _keyboardMovements;
-    position += movements.normalized() * 200 * dt;
+    position += movements.normalized() * 300 * dt;
     _handleScreenBounds();
 
     _elapsedFireTime += dt;
@@ -115,7 +117,7 @@ class Player extends SpriteAnimationComponent
   void _handleDestruction() async {
     animation = SpriteAnimation.spriteList(
       [
-        await game.loadSprite('player_blue_off.png'),
+        await game.loadSprite('player_${_color}_off.png'),
       ], 
       stepTime: double.infinity,
     );
@@ -178,8 +180,8 @@ class Player extends SpriteAnimationComponent
   Future<SpriteAnimation> _loadAnimation() async {
     return SpriteAnimation.spriteList(
       [
-        await game.loadSprite('player_blue_on0.png'),
-        await game.loadSprite('player_blue_on1.png'),
+        await game.loadSprite('player_${_color}_on0.png'),
+        await game.loadSprite('player_${_color}_on1.png'),
       ], 
       stepTime: 0.1,
       loop: true,
