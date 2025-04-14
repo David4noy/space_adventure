@@ -7,15 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:space_adventure/components/asteroid.dart';
 import 'package:space_adventure/game_main.dart';
 
-class Shield extends SpriteComponent with HasGameReference<GameMain>, CollisionCallbacks {
+class Shield extends SpriteAnimationComponent with HasGameReference<GameMain>, CollisionCallbacks {
   Shield() : super (
-        size: Vector2.all(200), 
+        size: Vector2.all(150), 
         anchor: Anchor.center,
       );
 
   @override
   FutureOr<void> onLoad() async {
-    sprite = await game.loadSprite('shield.png');
+    animation = await _loadAnimation();
     position = game.player.size / 2;
 
     add(CircleHitbox(isSolid: true));
@@ -25,6 +25,12 @@ class Shield extends SpriteComponent with HasGameReference<GameMain>, CollisionC
     
     return super.onLoad();
   }
+  
+  @override
+  void update(double dt) {
+    angle += 1.0 * dt;
+    super.update(dt);
+  }
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
@@ -33,6 +39,17 @@ class Shield extends SpriteComponent with HasGameReference<GameMain>, CollisionC
     if (other is Asteroid) {
       other.takeDamage(damage: 3);
     }
+  }
+
+  Future<SpriteAnimation> _loadAnimation() async {
+    return SpriteAnimation.spriteList(
+      [
+        await game.loadSprite('shield1.png'),
+        await game.loadSprite('shield2.png'),
+      ], 
+      stepTime: 0.1,
+      loop: true,
+    );
   }
 
   void _addingScaleEffect() {

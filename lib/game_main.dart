@@ -26,6 +26,7 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
   final List<String> playerColor = ['blue', 'red', 'green', 'purple'];
   int playerColorIndex = 0;
   late AudioManager audioManager;
+  int get score => _score;
 
   @override
   Future<void> onLoad() async {
@@ -54,7 +55,7 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
   Future<void> _createPlayer() async {
     player = Player()
     ..anchor = Anchor.center
-    ..position = Vector2(size.x / 2, size.y * 0.8);
+    ..position = Vector2(size.x / 2, size.y * 0.6);
 
     add(player);
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flame/flame.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 import 'package:space_adventure/game_main.dart';
@@ -36,20 +37,23 @@ List<Color> generatedColors() {
 class Explosion extends PositionComponent with HasGameReference<GameMain> {
   final ExplosionType explosionType;
   final double explosionSize;
+  final String image;
   final _random = Random();
 
   Explosion({
     required super.position,
     required this.explosionType, 
     required this.explosionSize, 
+    required this.image, 
   });
 
   @override
-  FutureOr<void> onLoad() {
+  FutureOr<void> onLoad() async {
     final num = 1 + _random.nextInt(2);
     game.audioManager.playSound('explode$num');
+    
     _createFlash();
-    _createParticles();
+    await _createParticles();
     
     add(RemoveEffect(delay: 1.0));
     return super.onLoad();
@@ -70,28 +74,31 @@ class Explosion extends PositionComponent with HasGameReference<GameMain> {
     add(flash);
   }
 
-  void _createParticles() {
-    final colors = explosionType.generatedColors();
+  Future<void> _createParticles()  async {
+    final asteroidImage = await Flame.images.load(image);    
 
     final particles = ParticleSystemComponent(
       particle: Particle.generate(
-        count: 8 + _random.nextInt(5), 
-        generator: (index) {  
+        count: 8 + _random.nextInt(5),
+        generator: (index) {
           return MovingParticle(
-            child: CircleParticle(
-              paint: Paint()..color = colors[_random.nextInt(colors.length)]
-                    .withValues(alpha: 0.4 + _random.nextDouble() * 0.4),
-              radius: explosionSize * (0.1 + _random.nextDouble() * 0.05)
-            ), 
+            child: ImageParticle(
+              image: asteroidImage,
+              size: Vector2.all(
+                explosionSize * (0.1 + _random.nextDouble() * 0.05),
+              ),
+              lifespan: 0.5 + _random.nextDouble() * 0.5,
+            ),
             to: Vector2(
-              (_random.nextDouble() - 0.5) * explosionSize * 2, 
+              (_random.nextDouble() - 0.5) * explosionSize * 2,
               (_random.nextDouble() - 0.5) * explosionSize * 2,
             ),
-            lifespan: 0.5 + _random.nextDouble() * 0.5
+            lifespan: 0.5 + _random.nextDouble() * 0.5,
           );
-        }
-      )
+        },
+      ),
     );
+
 
     add(particles);
   }

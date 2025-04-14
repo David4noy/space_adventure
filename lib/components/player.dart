@@ -18,7 +18,7 @@ class Player extends SpriteAnimationComponent
     with HasGameReference<GameMain>, KeyboardHandler, CollisionCallbacks {
 
   bool _isShooting = true;
-  final double _fireCooldown = 0.1;
+  final double _fireCooldown = 0.25;
   double _elapsedFireTime = 0.0;
   final _keyboardMovements = Vector2.zero();
   bool _isDestroyed = false;
@@ -26,7 +26,7 @@ class Player extends SpriteAnimationComponent
   late Timer _explosionTimer;
   late Timer _laserPowerupTimer;
   Shield? activeShield;
-  late String _color;
+  // late String _color;
 
   Player() {
     _explosionTimer = Timer(
@@ -44,11 +44,11 @@ class Player extends SpriteAnimationComponent
 
   @override
   Future<void> onLoad() async {
-    _color = game.playerColor[game.playerColorIndex];
+    // _color = game.playerColor[game.playerColorIndex];
 
     animation = await _loadAnimation();
 
-    size *= 0.2;
+    size *= 0.08;
 
     add(RectangleHitbox.relative(
         Vector2(0.6, 0.9), 
@@ -73,7 +73,14 @@ class Player extends SpriteAnimationComponent
     }
 
     final Vector2 movements = game.joystick.relativeDelta + _keyboardMovements;
-    position += movements.normalized() * 300 * dt;
+    position += movements.normalized() * 350 * dt;
+    if (movements.x < -0.1) {
+      angle = -0.1; // Lean slightly left
+    } else if (movements.x > 0.1) {
+      angle = 0.1; // Lean slightly right
+    } else {
+      angle = 0; // Reset tilt
+    }
     _handleScreenBounds();
 
     _elapsedFireTime += dt;
@@ -118,7 +125,8 @@ class Player extends SpriteAnimationComponent
   void _handleDestruction() async {
     animation = SpriteAnimation.spriteList(
       [
-        await game.loadSprite('player_${_color}_off.png'),
+        // await game.loadSprite('player_${_color}_off.png'),
+        await game.loadSprite('ship0.png'),
       ], 
       stepTime: double.infinity,
     );
@@ -161,6 +169,7 @@ class Player extends SpriteAnimationComponent
       position: explosionPosotion, 
       explosionType: explosionType, 
       explosionSize: size.x * 0.7,
+      image: 'asteroid1.png',
     );
 
     game.add(explosion);
@@ -181,8 +190,10 @@ class Player extends SpriteAnimationComponent
   Future<SpriteAnimation> _loadAnimation() async {
     return SpriteAnimation.spriteList(
       [
-        await game.loadSprite('player_${_color}_on0.png'),
-        await game.loadSprite('player_${_color}_on1.png'),
+        await game.loadSprite('ship1.png'),
+        await game.loadSprite('ship2.png'),
+        // await game.loadSprite('player_${_color}_on0.png'),
+        // await game.loadSprite('player_${_color}_on1.png'),
       ], 
       stepTime: 0.1,
       loop: true,

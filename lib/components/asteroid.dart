@@ -9,13 +9,14 @@ import 'package:space_adventure/game_main.dart';
 
 class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
   final _random = Random();
-  static const double _maxSize = 100;
+  static const double _maxSize = 150;
   late Vector2 _velocity;
   final _originalVelocity = Vector2.zero();
   late double _spinSpeed;
   final double _maxHealth = 3;
   late double _health;
   bool _isKnockBack = false;
+  String _image = 'asteroid1.png';
 
   Asteroid({required super.position, double size = _maxSize}) 
     : super (
@@ -35,6 +36,7 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
   FutureOr<void> onLoad() async {
     final imageNum = _random.nextInt(3) + 1;
     sprite = await game.loadSprite('asteroid$imageNum.png');
+    _image = 'asteroid$imageNum.png';
 
     return super.onLoad();
   }
@@ -50,8 +52,8 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
     final forceSize = _maxSize / size.x;
 
     return Vector2(
-      _random.nextDouble() * 120 - 60, 
-      50 + _random.nextDouble() * 50,
+      _random.nextDouble() * 140 - 60, 
+      50 + _random.nextDouble() * 70,
     ) * forceSize;
   }
 
@@ -118,7 +120,8 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
     final explosion = Explosion(
       position: position.clone(), 
       explosionType: ExplosionType.dust, 
-      explosionSize: size.x
+      explosionSize: size.x, 
+      image: _image,
     );
 
     game.add(explosion);

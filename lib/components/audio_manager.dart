@@ -1,9 +1,9 @@
 import 'dart:async';
-
 import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/services.dart';
 import 'package:soundpool/soundpool.dart';
+import 'package:space_adventure/Utiles/storage_manager.dart';
 
 class AudioManager extends Component {
   bool musicEnabled = true;
@@ -27,6 +27,7 @@ class AudioManager extends Component {
 
   @override
   FutureOr<void> onLoad() async {
+    musicEnabled = await StorageManager().getSavedBool(StorageKey.music) ?? true;
     FlameAudio.bgm.initialize();
 
     // load the sound effect files
@@ -43,7 +44,7 @@ class AudioManager extends Component {
 
   void playMusic() {
     if (musicEnabled) {
-      FlameAudio.bgm.play('music.ogg');
+      FlameAudio.bgm.play('music.mp3');
     }
   }
 
@@ -53,13 +54,14 @@ class AudioManager extends Component {
     }
   }
 
-  void toggleMusic() {
+  void toggleMusic()  async {
     musicEnabled = !musicEnabled;
     if (musicEnabled) {
       playMusic();
     } else {
       FlameAudio.bgm.stop();
     }
+    await StorageManager().saveBool(StorageKey.music, musicEnabled);
   }
 
   void toggleSounds() {
