@@ -71,7 +71,7 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
         size: Vector2.all(120),
       ),
       anchor: Anchor.bottomRight,
-      position: Vector2(size.x - 40, size.y - 40),
+      position: Vector2(size.x - 80, size.y - 100),
       priority: 10
     );
     add(joystick);
