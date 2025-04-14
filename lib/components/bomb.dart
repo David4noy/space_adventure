@@ -21,7 +21,7 @@ class Bomb extends SpriteComponent with HasGameReference<GameMain>, CollisionCal
     sprite = await game.loadSprite('bomb.png');
 
     add(CircleHitbox(isSolid: true));
-    
+
     _addSequenceEffect();
 
     return super.onLoad();
@@ -32,33 +32,23 @@ class Bomb extends SpriteComponent with HasGameReference<GameMain>, CollisionCal
     super.onCollision(intersectionPoints, other);
 
     if (other is Asteroid) {
-      other.takeDamage(damage: 3);
+      other.takeDamage(damage: 1);
     }
   }
 
   void _addSequenceEffect() {
     add(SequenceEffect([
-      _scaleEffect(),
-      _fadeOutEffect(),
-      RemoveEffect()
-    ]));
-  }
-
-  ScaleEffect _scaleEffect() {
-    return ScaleEffect.to(
-      Vector2.all(800), 
-      EffectController(
-        duration: 1.0,
-        curve: Curves.easeInOut,
-      )
-    );
-  }
-
-  OpacityEffect _fadeOutEffect() {
-    return OpacityEffect.fadeOut(
-      EffectController(
-        duration: 0.5,
+      SizeEffect.to(
+        Vector2.all(800),
+        EffectController(
+          duration: 1.0,
+          curve: Curves.easeInOut,
+        ),
       ),
-    );
+      OpacityEffect.fadeOut(
+        EffectController(duration: 0.5),
+      ),
+      RemoveEffect(),
+    ]));
   }
 }

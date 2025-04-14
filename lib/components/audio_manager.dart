@@ -7,7 +7,7 @@ import 'package:soundpool/soundpool.dart';
 
 class AudioManager extends Component {
   bool musicEnabled = true;
-  bool soundsEnabled = true;
+  bool soundsEnabled = false;
 
   final List<String> _sounds = [
     'click',
@@ -32,7 +32,7 @@ class AudioManager extends Component {
     // load the sound effect files
     for (String sound in _sounds) {
       _soundIds[sound] = await rootBundle
-          .load('assets/audio/$sound.ogg')
+          .load('assets/audio/$sound.mp3')
           .then((ByteData data) {
         return _soundpool.load(data);
       });

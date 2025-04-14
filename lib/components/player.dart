@@ -225,7 +225,6 @@ class Player extends SpriteAnimationComponent
   }
 
   void _fireLaser() {
-    game.audioManager.playSound('laser');
     game.add(Laser(position: position.clone() + Vector2(0, -size.y / 2)));
 
     if (_laserPowerupTimer.isRunning()) {

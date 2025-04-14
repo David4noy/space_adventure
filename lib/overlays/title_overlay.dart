@@ -145,22 +145,22 @@ class _TitleOverlayState extends State<TitleOverlay> {
                         ),
                       ),
 
-                      IconButton(
-                        onPressed: (){
-                          setState(() {
-                            widget.game.audioManager.toggleSounds();
-                          });
-                        }, 
-                        icon: Icon(
-                          widget.game.audioManager.soundsEnabled ? 
-                          Icons.volume_up_rounded :
-                          Icons.volume_off_rounded,
-                          color: widget.game.audioManager.soundsEnabled ? 
-                                Colors.white :
-                                Colors.grey,
-                          size: 30,
-                        ),
-                      ),
+                      // IconButton(
+                      //   onPressed: (){
+                      //     setState(() {
+                      //       widget.game.audioManager.toggleSounds();
+                      //     });
+                      //   }, 
+                      //   icon: Icon(
+                      //     widget.game.audioManager.soundsEnabled ? 
+                      //     Icons.volume_up_rounded :
+                      //     Icons.volume_off_rounded,
+                      //     color: widget.game.audioManager.soundsEnabled ? 
+                      //           Colors.white :
+                      //           Colors.grey,
+                      //     size: 30,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
