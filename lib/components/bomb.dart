@@ -17,6 +17,7 @@ class Bomb extends SpriteComponent with HasGameReference<GameMain>, CollisionCal
   
   @override
   FutureOr<void> onLoad() async {
+    game.audioManager.playSound('fire');
     sprite = await game.loadSprite('bomb.png');
 
     add(CircleHitbox(isSolid: true));

@@ -58,6 +58,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
       
             TextButton(
               onPressed: () {
+                widget.game.audioManager.playSound('click');
                 widget.game.restarGame();
                 setState(() {
                   _opacity = 0;
@@ -81,6 +82,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
       
             TextButton(
               onPressed: () {
+                widget.game.audioManager.playSound('click');
                 widget.game.quitGame();
                 setState(() {
                   _opacity = 0;

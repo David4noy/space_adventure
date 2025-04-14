@@ -7,6 +7,7 @@ import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:space_adventure/components/asteroid.dart';
+import 'package:space_adventure/components/audio_manager.dart';
 import 'package:space_adventure/components/pickup.dart';
 import 'package:space_adventure/components/player.dart';
 // import 'package:space_adventure/components/shoot_button.dart';
@@ -24,12 +25,17 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
   late TextComponent _scoreDisplay;
   final List<String> playerColor = ['blue', 'red', 'green', 'purple'];
   int playerColorIndex = 0;
+  late AudioManager audioManager;
 
   @override
   Future<void> onLoad() async {
 
     await Flame.device.fullScreen();
     await Flame.device.setPortrait();
+
+    audioManager = AudioManager();
+    await add(audioManager);
+    audioManager.playMusic();
 
     _createStars();
 

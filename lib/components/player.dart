@@ -92,6 +92,7 @@ class Player extends SpriteAnimationComponent
     if (other is Asteroid) {
       if (activeShield == null) _handleDestruction();
     } else if (other is Pickup) {
+      game.audioManager.playSound('collect');
       other.removeFromParent();
       game.incrementScore(1);
 
@@ -224,6 +225,7 @@ class Player extends SpriteAnimationComponent
   }
 
   void _fireLaser() {
+    game.audioManager.playSound('laser');
     game.add(Laser(position: position.clone() + Vector2(0, -size.y / 2)));
 
     if (_laserPowerupTimer.isRunning()) {
