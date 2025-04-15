@@ -41,8 +41,14 @@ class _PauseOverlayState extends State<PauseOverlay> {
       child: Container(
         color: Colors.black.withAlpha(150),
         alignment: Alignment.center,
-        child: Center(
-          child:  _resumeButton(),
+        child: Stack(
+          children: [
+            Center(
+              child:  _resumeButton(),
+            ),
+
+            _audioButtons(),
+          ],
         ),
       ),
     );
@@ -74,6 +80,53 @@ class _PauseOverlayState extends State<PauseOverlay> {
           fontSize: 36,
         ),
       )
+    );
+  }
+
+  Widget _audioButtons() {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Padding(
+        padding: const EdgeInsets.all(30),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: (){
+                setState(() {
+                  widget.game.audioManager.toggleMusic();
+                });
+              }, 
+              icon: Icon(
+                widget.game.audioManager.musicEnabled ? 
+                Icons.music_note_rounded :
+                Icons.music_off_rounded,
+                color: widget.game.audioManager.musicEnabled ? 
+                      Colors.white :
+                      Colors.grey,
+                size: 30,
+              ),
+            ),
+    
+            // IconButton(
+            //   onPressed: (){
+            //     setState(() {
+            //       widget.game.audioManager.toggleSounds();
+            //     });
+            //   }, 
+            //   icon: Icon(
+            //     widget.game.audioManager.soundsEnabled ? 
+            //     Icons.volume_up_rounded :
+            //     Icons.volume_off_rounded,
+            //     color: widget.game.audioManager.soundsEnabled ? 
+            //           Colors.white :
+            //           Colors.grey,
+            //     size: 30,
+            //   ),
+            // ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -128,52 +128,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
               ),
             ),
 
-            Expanded(
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(30),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: (){
-                          setState(() {
-                            widget.game.audioManager.toggleMusic();
-                          });
-                        }, 
-                        icon: Icon(
-                          widget.game.audioManager.musicEnabled ? 
-                          Icons.music_note_rounded :
-                          Icons.music_off_rounded,
-                          color: widget.game.audioManager.musicEnabled ? 
-                                Colors.white :
-                                Colors.grey,
-                          size: 30,
-                        ),
-                      ),
-
-                      // IconButton(
-                      //   onPressed: (){
-                      //     setState(() {
-                      //       widget.game.audioManager.toggleSounds();
-                      //     });
-                      //   }, 
-                      //   icon: Icon(
-                      //     widget.game.audioManager.soundsEnabled ? 
-                      //     Icons.volume_up_rounded :
-                      //     Icons.volume_off_rounded,
-                      //     color: widget.game.audioManager.soundsEnabled ? 
-                      //           Colors.white :
-                      //           Colors.grey,
-                      //     size: 30,
-                      //   ),
-                      // ),
-                    ],
-                  ),
-                ),
-              )
-            ),
+            _audioButtons(),
           ],
         )
       ),
@@ -203,6 +158,55 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
         fontSize: 24,
         fontWeight: FontWeight.bold,
       ),
+    );
+  }
+
+  Widget _audioButtons() {
+    return Expanded(
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: Padding(
+          padding: const EdgeInsets.all(30),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: (){
+                  setState(() {
+                    widget.game.audioManager.toggleMusic();
+                  });
+                }, 
+                icon: Icon(
+                  widget.game.audioManager.musicEnabled ? 
+                  Icons.music_note_rounded :
+                  Icons.music_off_rounded,
+                  color: widget.game.audioManager.musicEnabled ? 
+                        Colors.white :
+                        Colors.grey,
+                  size: 30,
+                ),
+              ),
+
+              // IconButton(
+              //   onPressed: (){
+              //     setState(() {
+              //       widget.game.audioManager.toggleSounds();
+              //     });
+              //   }, 
+              //   icon: Icon(
+              //     widget.game.audioManager.soundsEnabled ? 
+              //     Icons.volume_up_rounded :
+              //     Icons.volume_off_rounded,
+              //     color: widget.game.audioManager.soundsEnabled ? 
+              //           Colors.white :
+              //           Colors.grey,
+              //     size: 30,
+              //   ),
+              // ),
+            ],
+          ),
+        ),
+      )
     );
   }
 }

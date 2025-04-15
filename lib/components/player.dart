@@ -217,7 +217,7 @@ class Player extends SpriteAnimationComponent
 
     position.x = clampDouble(
       position.x, 
-      size.x, 
+      size.x - size.x / 2, 
       screenWidth - size.x / 2
     );
 

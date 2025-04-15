@@ -61,6 +61,26 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     return super.onLoad();
   }
 
+  @override
+  void render(Canvas canvas) {
+
+    final rect = Rect.fromLTWH(0, 0, size.x, size.y);
+    final paint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
+        colors: [
+          Colors.black,
+          const Color(0xFF2C003E), // Deep dark purple
+          Colors.black,
+        ],
+        stops: [0.0, 0.5, 1.0],
+      ).createShader(rect);
+
+    canvas.drawRect(rect, paint);
+    super.render(canvas);
+  }
+
   void startGame() async {
     await _createJoystick();
     await _createPlayer();
