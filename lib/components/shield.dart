@@ -70,7 +70,7 @@ class Shield extends SpriteAnimationComponent with HasGameReference<GameMain>, C
     final fadeOutEffect = OpacityEffect.fadeOut(
       EffectController(
         duration: 2.0,
-        startDelay: 3.0,
+        startDelay: 4.0,
       ),
       onComplete: () {
         removeFromParent();

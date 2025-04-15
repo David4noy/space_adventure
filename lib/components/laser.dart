@@ -7,7 +7,8 @@ import 'package:space_adventure/components/asteroid.dart';
 import 'package:space_adventure/game_main.dart';
 
 class Laser extends SpriteComponent with HasGameReference<GameMain>, CollisionCallbacks {
-  Laser({required super.position, super.angle = 0.0})
+  final bool isMulti;
+  Laser({required super.position, super.angle = 0.0, required this.isMulti})
     : super(
       anchor: Anchor.center,
       priority: -1
@@ -16,8 +17,8 @@ class Laser extends SpriteComponent with HasGameReference<GameMain>, CollisionCa
   @override
   FutureOr<void> onLoad() async {
 
-    sprite = await game.loadSprite('laser.png');
-    size *= 0.25;
+    sprite = await game.loadSprite(isMulti ? 'laser_multi.png' : 'laser.png');
+    size *= 0.3;
     add(RectangleHitbox());
     return super.onLoad();
   }

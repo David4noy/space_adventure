@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:space_adventure/Utiles/overlay_item.dart';
 import 'package:space_adventure/Utiles/storage_manager.dart';
 import 'package:space_adventure/game_main.dart';
 
-class TitleOverlay extends StatefulWidget {
+class MainMenuOverlay extends StatefulWidget {
   final GameMain game;
-  const TitleOverlay({super.key, required this.game});
+  const MainMenuOverlay({super.key, required this.game});
 
   @override
-  State<TitleOverlay> createState() => _TitleOverlayState();
+  State<MainMenuOverlay> createState() => _MainMenuOverlayState();
 }
 
-class _TitleOverlayState extends State<TitleOverlay> {
+class _MainMenuOverlayState extends State<MainMenuOverlay> {
   double _opacity = 0.0;
   String _bestScore = 'Not set yet!\nPlay to get the best score';
 
@@ -35,7 +36,7 @@ class _TitleOverlayState extends State<TitleOverlay> {
     return AnimatedOpacity(
       onEnd: () {
         if (_opacity == 0) {
-          widget.game.overlays.remove('Title');
+          widget.game.overlays.remove(Overlayitem.mainMenu.title);
         }
       },
       opacity: _opacity,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:space_adventure/Utiles/overlay_item.dart';
 import 'package:space_adventure/Utiles/storage_manager.dart';
 import 'package:space_adventure/game_main.dart';
 
@@ -36,7 +37,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
     return AnimatedOpacity(
       onEnd: () {
         if (_opacity == 0) {
-          widget.game.overlays.remove('GameOver');
+          widget.game.overlays.remove(Overlayitem.gameOver.title);
         }
       },
       opacity: _opacity,
@@ -50,15 +51,15 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
 
             _bestScoreText(),
 
-            const SizedBox(height: 50),
+            const SizedBox(height: 80),
 
             _gameOverText(),
       
-            const SizedBox(height: 50),
+            const SizedBox(height: 80),
       
             _playAgainButton(),
       
-            const SizedBox(height: 15),
+            const SizedBox(height: 30),
       
             _mainMenuButton(),
           ],
@@ -118,8 +119,14 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
       }, 
       style: TextButton.styleFrom(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 25),
-        backgroundColor: Colors.blue,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50))
+        backgroundColor: Colors.blue.withAlpha(120),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+          side: BorderSide( 
+            color: Colors.blue, 
+            width: 2.0, 
+          ),
+        )
       ),
       child: Text(
         'PLAY AGAIN',
@@ -142,8 +149,14 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
       }, 
       style: TextButton.styleFrom(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 25),
-        backgroundColor: Colors.blue,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50))
+        backgroundColor: Colors.blue.withAlpha(120),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+          side: BorderSide( 
+            color: Colors.blue, 
+            width: 2.0, 
+          ),
+        )
       ),
       child: Text(
         'MAIN MENU',

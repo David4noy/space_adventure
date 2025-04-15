@@ -12,7 +12,7 @@ class Pickup extends SpriteComponent with HasGameReference<GameMain> {
   final PickupType pickupType;
 
   Pickup({required super.position, required this.pickupType})
-      : super(size: Vector2.all(100), anchor: Anchor.center);
+      : super(size: Vector2.all(80), anchor: Anchor.center);
 
   @override
   FutureOr<void> onLoad() async {

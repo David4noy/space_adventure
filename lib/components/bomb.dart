@@ -28,6 +28,12 @@ class Bomb extends SpriteComponent with HasGameReference<GameMain>, CollisionCal
   }
 
   @override
+  void update(double dt) {
+    angle += 3.0 * dt;
+    super.update(dt);
+  }
+
+  @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
 
@@ -39,7 +45,7 @@ class Bomb extends SpriteComponent with HasGameReference<GameMain>, CollisionCal
   void _addSequenceEffect() {
     add(SequenceEffect([
       SizeEffect.to(
-        Vector2.all(800),
+        Vector2.all(700),
         EffectController(
           duration: 1.0,
           curve: Curves.easeInOut,

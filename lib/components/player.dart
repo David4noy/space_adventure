@@ -26,6 +26,7 @@ class Player extends SpriteAnimationComponent
   late Timer _explosionTimer;
   late Timer _laserPowerupTimer;
   Shield? activeShield;
+  int playerLifes = 3;
   // late String _color;
 
   Player() {
@@ -75,9 +76,9 @@ class Player extends SpriteAnimationComponent
     final Vector2 movements = game.joystick.relativeDelta + _keyboardMovements;
     position += movements.normalized() * 350 * dt;
     if (movements.x < -0.1) {
-      angle = -0.1; // Lean slightly left
+      angle = -0.2; // Lean slightly left
     } else if (movements.x > 0.1) {
-      angle = 0.1; // Lean slightly right
+      angle = 0.2; // Lean slightly right
     } else {
       angle = 0; // Reset tilt
     }
@@ -97,7 +98,11 @@ class Player extends SpriteAnimationComponent
     if (_isDestroyed) return;
 
     if (other is Asteroid) {
-      if (activeShield == null) _handleDestruction();
+      if (activeShield == null) {
+        game.playerTakeDamage();
+        other.takeDamage(damage: 3);
+        if (game.playerLifes <= 0) _handleDestruction();
+      }
     } else if (other is Pickup) {
       game.audioManager.playSound('collect');
       other.removeFromParent();
@@ -138,19 +143,19 @@ class Player extends SpriteAnimationComponent
     );
 
     add(OpacityEffect.fadeOut(
-      EffectController(duration: 3.0),
+      EffectController(duration: 2.0),
       onComplete: () => _explosionTimer.stop(),
       )
     );
 
     add(MoveEffect.by(
         Vector2(0, 200),
-        EffectController(duration: 3.0) 
+        EffectController(duration: 2.0) 
       )
     );
 
     add(RemoveEffect(
-        delay: 4.0,
+        delay: 2.5,
         onComplete: () => game.onPlayerDied(),
       ));
 
@@ -236,19 +241,26 @@ class Player extends SpriteAnimationComponent
   }
 
   void _fireLaser() {
-    game.add(Laser(position: position.clone() + Vector2(0, -size.y / 2)));
+    game.add(
+      Laser(
+        position: position.clone() + Vector2(0, -size.y / 2), 
+        isMulti: _laserPowerupTimer.isRunning()
+      )
+    );
 
     if (_laserPowerupTimer.isRunning()) {
       game.add(
         Laser(
           position: position.clone() + Vector2(0, -size.y / 2), 
           angle: 15 * degrees2Radians,
+          isMulti: true,
         )
       );
       game.add(
         Laser(
           position: position.clone() + Vector2(0, -size.y / 2), 
-          angle: -15 * degrees2Radians,
+          angle: -15 * degrees2Radians, 
+          isMulti: true,
         )
       );
     }
