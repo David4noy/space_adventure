@@ -18,7 +18,7 @@ class Player extends SpriteAnimationComponent
     with HasGameReference<GameMain>, KeyboardHandler, CollisionCallbacks {
 
   bool _isShooting = true;
-  final double _fireCooldown = 0.25;
+  double _fireCooldown = 0.27;
   double _elapsedFireTime = 0.0;
   final _keyboardMovements = Vector2.zero();
   bool _isDestroyed = false;
@@ -70,7 +70,10 @@ class Player extends SpriteAnimationComponent
     }
 
     if (_laserPowerupTimer.isRunning()) {
+      _fireCooldown = 0.15;
       _laserPowerupTimer.update(dt);
+    } else {
+      _fireCooldown = 0.27;
     }
 
     final Vector2 movements = game.joystick.relativeDelta + _keyboardMovements;
@@ -251,15 +254,15 @@ class Player extends SpriteAnimationComponent
     if (_laserPowerupTimer.isRunning()) {
       game.add(
         Laser(
-          position: position.clone() + Vector2(0, -size.y / 2), 
-          angle: 15 * degrees2Radians,
+          position: position.clone(), // + Vector2(0, -size.y / 2), 
+          angle: 20 * degrees2Radians,
           isMulti: true,
         )
       );
       game.add(
         Laser(
-          position: position.clone() + Vector2(0, -size.y / 2), 
-          angle: -15 * degrees2Radians, 
+          position: position.clone(), // + Vector2(0, -size.y / 2), 
+          angle: -20 * degrees2Radians, 
           isMulti: true,
         )
       );
