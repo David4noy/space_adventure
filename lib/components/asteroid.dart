@@ -50,17 +50,24 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
   }
 
   Vector2 _generateVelocity() {
-    final speedUp = (currnetScore ~/ 1000) * 40.0;
-    // double speedUp = 0;
-    // if (game.score  > 1000 && game.score  < 2000) {
-    //   speedUp = 10;
-    // }
-    final forceSize = _maxSize / size.x ;
+    final speedUp = (currnetScore ~/ 1000) * 25.0;
 
-    return Vector2(
-      _random.nextDouble() * 100 - 60, 
-      50 + _random.nextDouble() * 50,
-    ) * forceSize + Vector2.all(speedUp);
+    final forceSize = _maxSize / size.x;
+
+    // x in range [-40, 40)
+    double x = _random.nextDouble() * 80 - 40;
+
+    // y in range [50, 100)
+    double y = 50 + _random.nextDouble() * 50;
+
+    // First apply scaling
+    Vector2 velocity = Vector2(x, y) * forceSize;
+
+    // Then add fixed speedUp after scaling
+    velocity.x += (velocity.x >= 0) ? speedUp : -speedUp;
+    velocity.y += speedUp;
+
+    return velocity;
   }
 
   void _handleScreenBounds() {

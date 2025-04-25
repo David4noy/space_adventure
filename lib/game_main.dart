@@ -34,6 +34,8 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
   int _playerLifes = 3;
   int get playerLifes => _playerLifes;
   final _playerMaxLife = 3;
+  double _currenAsteroidtMinPeriod = 0.7;
+  double _currentAsteroidMaxPeriod = 1.2;
 
   final _lifeDisplayStyle = const TextStyle(
     color: Color.fromARGB(255, 104, 240, 14),
@@ -99,7 +101,7 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
   }
 
   void startGame() async {
-    await _createJoystick(Vector2(size.x - 80, size.y - 100));
+    await _createJoystick(Vector2(size.x - 120, size.y - 140));
     await _createPlayer();
     // _createShootButton();
     _createAsteroidSpawner();
@@ -152,6 +154,24 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
       selfPositioning: true,
     );
     
+    add(_asteroidSpawner);
+  }
+
+  void _updateAsteroidSpawner(double newMin, double newMax) {
+    if (_currenAsteroidtMinPeriod == newMin && _currentAsteroidMaxPeriod == newMax) return;
+
+    _currenAsteroidtMinPeriod = newMin;
+    _currentAsteroidMaxPeriod = newMax;
+
+    remove(_asteroidSpawner);
+
+    _asteroidSpawner = SpawnComponent.periodRange(
+      factory: (index) => Asteroid(position: _generateSpawnPosition(), currnetScore: _score),
+      minPeriod: newMin,
+      maxPeriod: newMax,
+      selfPositioning: true,
+    );
+
     add(_asteroidSpawner);
   }
 
@@ -251,10 +271,20 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     
     _lifeDisplay.textRenderer = TextPaint(
       style: _lifeDisplayStyle.copyWith(
-        color: color, // 🔁 change only the color
+        color: color, 
       ),
     );
 
+    final popEffect = ScaleEffect.to(
+      Vector2.all(1.5), 
+      EffectController(
+        duration: 0.25,
+        alternate: true,
+        curve: Curves.easeInOut,
+      )
+    );
+
+    _lifeDisplay.add(popEffect);
   }
 
   void incrementScore(int amount) {
@@ -271,6 +301,32 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     );
 
     _scoreDisplay.add(popEffect);
+
+    _handleAsteroidSpawnerUpdate();
+  }
+
+  void _handleAsteroidSpawnerUpdate() {
+    final int baseScore = 4500;
+    final int step = 400;
+
+    final double startMin = 0.60;
+    final double startMax = 1.10;
+    final double endMin = 0.35;
+    final double endMax = 0.60;
+
+    final int steps = 20;
+    final double minStepSize = (startMin - endMin) / steps;
+    final double maxStepSize = (startMax - endMax) / steps;
+
+    for (int i = steps; i >= 0; i--) {
+      final int threshold = baseScore + i * step;
+      if (_score > threshold) {
+        final double newMin = startMin - i * minStepSize;
+        final double newMax = startMax - i * maxStepSize;
+        _updateAsteroidSpawner(newMin, newMax);
+        break;
+      }
+    }
   }
 
   void _createStars() {
