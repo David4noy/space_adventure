@@ -16,13 +16,14 @@ import 'package:space_adventure/components/player.dart';
 // import 'package:space_adventure/components/shoot_button.dart';
 import 'package:space_adventure/components/star.dart';
 
-class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDetection, TapCallbacks {
+class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDetection, TapCallbacks, DragCallbacks {
 
   late Player player;
   late JoystickComponent joystick;
   late SpawnComponent _asteroidSpawner;
   late SpawnComponent _pickupSpawner;
   final _random = Random();
+  final List<PickupType> _pickupPool = List.from(PickupType.values);
   // late ShootButton _shootButton;
   int _score = 0;
   late TextComponent _scoreDisplay;
@@ -179,7 +180,7 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     _pickupSpawner = SpawnComponent.periodRange(
       factory: (index) => Pickup(
         position: _generateSpawnPosition(), 
-        pickupType: PickupType.values[_random.nextInt(PickupType.values.length)]
+        pickupType: getPickupType()
       ),
       minPeriod: 1, 
       maxPeriod: 3,
@@ -208,6 +209,22 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
         }
       ),
     );           // Add the button to the game
+  }
+
+  PickupType getPickupType() {
+    if (_pickupPool.isEmpty) {
+      _pickupPool.addAll(PickupType.values);
+    }
+
+    final chosenType = _pickupPool[_random.nextInt(_pickupPool.length)];
+
+    // Remove all instances of the chosen type
+    _pickupPool.removeWhere((pickupType) => pickupType == chosenType);
+
+    // Add one instance of each PickupType (including the chosen one)
+    _pickupPool.addAll(PickupType.values);
+
+    return chosenType;
   }
 
   void _createScoreDisplay() {
