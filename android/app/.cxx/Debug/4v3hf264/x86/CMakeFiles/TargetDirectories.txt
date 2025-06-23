@@ -1,0 +1,2 @@
+/Users/davidnoy/Repositories/Flutter/SpaceAdventure/android/app/.cxx/Debug/4v3hf264/x86/CMakeFiles/edit_cache.dir
+/Users/davidnoy/Repositories/Flutter/SpaceAdventure/android/app/.cxx/Debug/4v3hf264/x86/CMakeFiles/rebuild_cache.dir

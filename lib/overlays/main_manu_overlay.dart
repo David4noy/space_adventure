@@ -45,7 +45,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
         alignment: Alignment.center,
         child: Column(
           children: [
-            const SizedBox(height: 120),
+            const SizedBox(height: 60),
 
             _bestScoreText(),
 
@@ -53,64 +53,11 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
 
             SizedBox(
               width: 270,
-              child: Image.asset('assets/images/title.png'),
+              child: Image.asset('assets/images/menu_icon.png'),
             ),
 
             // const SizedBox(height: 60),
-
-            // Row(
-            //   mainAxisSize: MainAxisSize.min,
-            //   children: [
-
-            //     GestureDetector(
-            //       onTap: (){
-            //         widget.game.audioManager.playSound('click');
-            //         setState(() {
-            //           widget.game.playerColorIndex--;
-            //           if (widget.game.playerColorIndex < 0) {
-            //             widget.game.playerColorIndex = widget.game.playerColor.length - 1;
-            //           }
-            //         });
-            //       },
-            //       child: Transform.flip(
-            //         flipX: true,
-            //         child: SizedBox(
-            //           width: 30,
-            //           child: Image.asset('assets/images/arrow_button.png'),
-            //         ),
-            //       ),
-            //     ),
-
-            //     Padding(
-            //       padding: const EdgeInsets.only(left: 30, right: 30, top: 30),
-            //       child: SizedBox(
-            //         width: 100,
-            //         child: Image.asset(
-            //           'assets/images/player_${playerColor}_off.png',
-            //           gaplessPlayback: true,
-            //         ),
-            //       ),
-            //     ),
-
-            //     GestureDetector(
-            //       onTap: (){
-            //         widget.game.audioManager.playSound('click');
-            //         setState(() {
-            //           widget.game.playerColorIndex++;
-            //           if (widget.game.playerColorIndex == widget.game.playerColor.length) {
-            //             widget.game.playerColorIndex = 0;
-            //           }
-            //         });
-            //       },
-            //       child: SizedBox(
-            //         width: 30,
-            //         child: Image.asset('assets/images/arrow_button.png'),
-            //       ),
-            //     ),
-
-                
-            //   ],
-            // ),
+            // Widget _chooseAShip(playerColor)
 
             const SizedBox(height: 10),
 
@@ -160,6 +107,60 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
       ),
     );
   }
+
+  // Widget _chooseAShip(String playerColor) {
+  //   return Row(
+  //     mainAxisSize: MainAxisSize.min,
+  //     children: [
+
+  //       GestureDetector(
+  //         onTap: (){
+  //           widget.game.audioManager.playSound('click');
+  //           setState(() {
+  //             widget.game.playerColorIndex--;
+  //             if (widget.game.playerColorIndex < 0) {
+  //               widget.game.playerColorIndex = widget.game.playerColor.length - 1;
+  //             }
+  //           });
+  //         },
+  //         child: Transform.flip(
+  //           flipX: true,
+  //           child: SizedBox(
+  //             width: 30,
+  //             child: Image.asset('assets/images/arrow_button.png'),
+  //           ),
+  //         ),
+  //       ),
+
+  //       Padding(
+  //         padding: const EdgeInsets.only(left: 30, right: 30, top: 30),
+  //         child: SizedBox(
+  //           width: 100,
+  //           child: Image.asset(
+  //             'assets/images/player_${playerColor}_off.png',
+  //             gaplessPlayback: true,
+  //           ),
+  //         ),
+  //       ),
+
+  //       GestureDetector(
+  //         onTap: (){
+  //           widget.game.audioManager.playSound('click');
+  //           setState(() {
+  //             widget.game.playerColorIndex++;
+  //             if (widget.game.playerColorIndex == widget.game.playerColor.length) {
+  //               widget.game.playerColorIndex = 0;
+  //             }
+  //           });
+  //         },
+  //         child: SizedBox(
+  //           width: 30,
+  //           child: Image.asset('assets/images/arrow_button.png'),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _audioButtons() {
     return Expanded(
