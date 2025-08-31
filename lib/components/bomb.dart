@@ -8,13 +8,19 @@ import 'package:space_adventure/components/asteroid.dart';
 import 'package:space_adventure/game_main.dart';
 
 class Bomb extends SpriteComponent with HasGameReference<GameMain>, CollisionCallbacks {
-  Bomb({required super.position}) 
-    : super(
-      size: Vector2.all(1),
-      anchor: Anchor.center,
-      priority: -1,
-    );
-  
+  final double maxSize;
+  final double duration;
+
+    Bomb({
+      required super.position,
+      this.maxSize = 700,
+      this.duration = 1.0,
+    }) : super(
+            size: Vector2.all(1),
+            anchor: Anchor.center,
+            priority: -1, 
+          );
+    
   @override
   FutureOr<void> onLoad() async {
     game.audioManager.playSound('fire');
@@ -45,14 +51,14 @@ class Bomb extends SpriteComponent with HasGameReference<GameMain>, CollisionCal
   void _addSequenceEffect() {
     add(SequenceEffect([
       SizeEffect.to(
-        Vector2.all(700),
+        Vector2.all(maxSize),
         EffectController(
-          duration: 1.0,
+          duration: duration,
           curve: Curves.easeInOut,
         ),
       ),
       OpacityEffect.fadeOut(
-        EffectController(duration: 0.5),
+        EffectController(duration: duration / 2),
       ),
       RemoveEffect(),
     ]));

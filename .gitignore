@@ -97,6 +97,7 @@ ios/Flutter/*.xcconfig
 **/android/**/GeneratedPluginRegistrant.java
 **/android/key.properties
 *.jks
+**/android/app/.cxx
 
 # Windows related
 **/windows/flutter/ephemeral/

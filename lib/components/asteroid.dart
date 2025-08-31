@@ -10,6 +10,7 @@ import 'package:space_adventure/game_main.dart';
 class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
   final _random = Random();
   static const double _maxSize = 150;
+  final int currnetScore;
   late Vector2 _velocity;
   final _originalVelocity = Vector2.zero();
   late double _spinSpeed;
@@ -18,7 +19,7 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
   bool _isKnockBack = false;
   String _image = 'asteroid1.png';
 
-  Asteroid({required super.position, double size = _maxSize}) 
+  Asteroid({required super.position, required this.currnetScore,  double size = _maxSize}) 
     : super (
         size: Vector2.all(size), 
         anchor: Anchor.center,
@@ -49,12 +50,24 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
   }
 
   Vector2 _generateVelocity() {
+    final speedUp = (currnetScore ~/ 1000) * 25.0;
+
     final forceSize = _maxSize / size.x;
 
-    return Vector2(
-      _random.nextDouble() * 140 - 60, 
-      50 + _random.nextDouble() * 70,
-    ) * forceSize;
+    // x in range [-40, 40)
+    double x = _random.nextDouble() * 80 - 40;
+
+    // y in range [50, 100)
+    double y = 50 + _random.nextDouble() * 50;
+
+    // First apply scaling
+    Vector2 velocity = Vector2(x, y) * forceSize;
+
+    // Then add fixed speedUp after scaling
+    velocity.x += (velocity.x >= 0) ? speedUp : -speedUp;
+    velocity.y += speedUp;
+
+    return velocity;
   }
 
   void _handleScreenBounds() {
@@ -133,7 +146,8 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
     for (var i = 0; i < 3; i++) {
       final fragment = Asteroid(
         position: position.clone(),
-        size: size.x - _maxSize / 3,
+        size: size.x - _maxSize / 3, 
+        currnetScore: currnetScore,
       );
       game.add(fragment);
     }

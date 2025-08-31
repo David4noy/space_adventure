@@ -18,7 +18,7 @@ class Player extends SpriteAnimationComponent
     with HasGameReference<GameMain>, KeyboardHandler, CollisionCallbacks {
 
   bool _isShooting = true;
-  final double _fireCooldown = 0.25;
+  double _fireCooldown = 0.27;
   double _elapsedFireTime = 0.0;
   final _keyboardMovements = Vector2.zero();
   bool _isDestroyed = false;
@@ -38,7 +38,7 @@ class Player extends SpriteAnimationComponent
     );
 
     _laserPowerupTimer = Timer(
-      10.0,
+      8.0,
       autoStart: false,
     );
   }
@@ -70,7 +70,10 @@ class Player extends SpriteAnimationComponent
     }
 
     if (_laserPowerupTimer.isRunning()) {
+      _fireCooldown = 0.15;
       _laserPowerupTimer.update(dt);
+    } else {
+      _fireCooldown = 0.27;
     }
 
     final Vector2 movements = game.joystick.relativeDelta + _keyboardMovements;
@@ -98,32 +101,79 @@ class Player extends SpriteAnimationComponent
     if (_isDestroyed) return;
 
     if (other is Asteroid) {
-      if (activeShield == null) {
-        game.playerTakeDamage();
-        other.takeDamage(damage: 3);
-        if (game.playerLifes <= 0) _handleDestruction();
-      }
+      _handleAsteroidCollision(intersectionPoints, other);
     } else if (other is Pickup) {
-      game.audioManager.playSound('collect');
-      other.removeFromParent();
-      game.incrementScore(1);
+      _handlePickupCollision(other);
+    }
+  }
 
-      switch (other.pickupType) {
-        case PickupType.bomb:
-          game.add(Bomb(position: position.clone()));
-          break;
-        case PickupType.laser:
-          _laserPowerupTimer.start();
-          break;
-        case PickupType.shield:
-          if (activeShield != null) {
-            remove(activeShield!);
-          }
-
-          activeShield = Shield();
-          add(activeShield!);
-          break;
+  void _handleAsteroidCollision(Set<Vector2> intersectionPoints, Asteroid asteroid) {
+    if (activeShield == null) {
+      _applyDamageToPlayer();
+      asteroid.takeDamage(damage: 3);
+      if (game.playerLifes <= 0) {
+        _handleDestruction();
+      } else {
+        _spawnBombAtCollisionPoint(intersectionPoints);
       }
+    }
+  }
+
+  void _applyDamageToPlayer() {
+    game.playerTakeDamage();
+  }
+
+  void _handlePickupCollision(Pickup pickup) {
+    game.audioManager.playSound('collect');
+    pickup.removeFromParent();
+    game.incrementScore(1);
+
+    _handlePickupType(pickup);
+  }
+
+  void _handlePickupType(Pickup pickup) {
+    switch (pickup.pickupType) {
+      case PickupType.bomb:
+        _spawnBomb();
+        break;
+      case PickupType.laser:
+        _activateLaserPowerup();
+        break;
+      case PickupType.shield:
+        _equipShield();
+        break;
+    }
+  }
+
+  void _spawnBomb() {
+    game.add(Bomb(position: position.clone()));
+  }
+
+  void _activateLaserPowerup() {
+    _laserPowerupTimer.start();
+  }
+
+  void _equipShield() {
+    if (activeShield != null) {
+      remove(activeShield!);
+    }
+
+    activeShield = Shield();
+    add(activeShield!);
+  }
+
+  void _spawnBombAtCollisionPoint(Set<Vector2> intersectionPoints) {
+    // Use the first intersection point as the spawn point for the bomb
+    if (intersectionPoints.isNotEmpty) {
+      final collisionPoint = intersectionPoints.first;
+      collisionPoint.y -= 10;
+
+      // Create a bomb with maxSize 20, duration 0.5, and priority 5 at the collision point
+      game.add(Bomb(
+        position: collisionPoint,
+        maxSize: 80,
+        duration: 0.3,
+      )..priority = 5);
     }
   }
 
@@ -143,7 +193,7 @@ class Player extends SpriteAnimationComponent
     );
 
     add(OpacityEffect.fadeOut(
-      EffectController(duration: 2.0),
+      EffectController(duration: 1.5),
       onComplete: () => _explosionTimer.stop(),
       )
     );
@@ -158,6 +208,11 @@ class Player extends SpriteAnimationComponent
         delay: 2.5,
         onComplete: () => game.onPlayerDied(),
       ));
+
+    game.add(Bomb(
+      position: position.clone(),
+      maxSize: 400,
+    )..priority = 20);
 
     _isDestroyed = true;
     _explosionTimer.start();
@@ -251,15 +306,15 @@ class Player extends SpriteAnimationComponent
     if (_laserPowerupTimer.isRunning()) {
       game.add(
         Laser(
-          position: position.clone() + Vector2(0, -size.y / 2), 
-          angle: 15 * degrees2Radians,
+          position: position.clone(), // + Vector2(0, -size.y / 2), 
+          angle: 20 * degrees2Radians,
           isMulti: true,
         )
       );
       game.add(
         Laser(
-          position: position.clone() + Vector2(0, -size.y / 2), 
-          angle: -15 * degrees2Radians, 
+          position: position.clone(), // + Vector2(0, -size.y / 2), 
+          angle: -20 * degrees2Radians, 
           isMulti: true,
         )
       );

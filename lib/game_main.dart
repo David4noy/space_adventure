@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flame/events.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
@@ -15,13 +16,14 @@ import 'package:space_adventure/components/player.dart';
 // import 'package:space_adventure/components/shoot_button.dart';
 import 'package:space_adventure/components/star.dart';
 
-class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDetection {
+class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDetection, TapCallbacks, DragCallbacks {
 
   late Player player;
   late JoystickComponent joystick;
   late SpawnComponent _asteroidSpawner;
   late SpawnComponent _pickupSpawner;
   final _random = Random();
+  final List<PickupType> _pickupPool = List.from(PickupType.values);
   // late ShootButton _shootButton;
   int _score = 0;
   late TextComponent _scoreDisplay;
@@ -32,6 +34,9 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
   int get score => _score;
   int _playerLifes = 3;
   int get playerLifes => _playerLifes;
+  final _playerMaxLife = 3;
+  double _currenAsteroidtMinPeriod = 0.7;
+  double _currentAsteroidMaxPeriod = 1.2;
 
   final _lifeDisplayStyle = const TextStyle(
     color: Color.fromARGB(255, 104, 240, 14),
@@ -81,8 +86,23 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     super.render(canvas);
   }
 
+  @override
+  Future<void> onTapDown(TapDownEvent event) async {
+    // Remove old joystick
+    joystick.removeFromParent();
+
+    // Create new joystick at tap position
+    await _createJoystick(event.canvasPosition);
+  }
+
+  @override
+  void onTapUp(TapUpEvent event) {
+    // Remove joystick on tap up
+    joystick.removeFromParent();
+  }
+
   void startGame() async {
-    await _createJoystick();
+    await _createJoystick(Vector2(size.x - 120, size.y - 140));
     await _createPlayer();
     // _createShootButton();
     _createAsteroidSpawner();
@@ -93,7 +113,7 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
   }
 
   Future<void> _createPlayer() async {
-    _playerLifes = 3;
+    _playerLifes = _playerMaxLife;
     
     player = Player()
     ..anchor = Anchor.center
@@ -102,18 +122,18 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     add(player);
   }
 
-  Future<void> _createJoystick() async {
+  Future<void> _createJoystick(Vector2 position) async {
     joystick = JoystickComponent(
       knob: SpriteComponent(
         sprite: await loadSprite('joystick_background.png'),
-        size: Vector2.all(100),
+        size: Vector2.all(70),
       ),
       background: SpriteComponent(
         sprite: await loadSprite('joystick_background.png'),
-        size: Vector2.all(140),
+        size: Vector2.all(120),
       ),
-      anchor: Anchor.bottomRight,
-      position: Vector2(size.x - 80, size.y - 100),
+      anchor: Anchor.center,
+      position: position,
       priority: 10
     );
     add(joystick);
@@ -129,7 +149,7 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
 
   void _createAsteroidSpawner() {
     _asteroidSpawner = SpawnComponent.periodRange(
-      factory: (index) => Asteroid(position: _generateSpawnPosition()),
+      factory: (index) => Asteroid(position: _generateSpawnPosition(), currnetScore: _score),
       minPeriod: 0.7, 
       maxPeriod: 1.2,
       selfPositioning: true,
@@ -138,11 +158,29 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     add(_asteroidSpawner);
   }
 
+  void _updateAsteroidSpawner(double newMin, double newMax) {
+    if (_currenAsteroidtMinPeriod == newMin && _currentAsteroidMaxPeriod == newMax) return;
+
+    _currenAsteroidtMinPeriod = newMin;
+    _currentAsteroidMaxPeriod = newMax;
+
+    remove(_asteroidSpawner);
+
+    _asteroidSpawner = SpawnComponent.periodRange(
+      factory: (index) => Asteroid(position: _generateSpawnPosition(), currnetScore: _score),
+      minPeriod: newMin,
+      maxPeriod: newMax,
+      selfPositioning: true,
+    );
+
+    add(_asteroidSpawner);
+  }
+
   void _createPickupSpawner() {
     _pickupSpawner = SpawnComponent.periodRange(
       factory: (index) => Pickup(
         position: _generateSpawnPosition(), 
-        pickupType: PickupType.values[_random.nextInt(PickupType.values.length)]
+        pickupType: getPickupType()
       ),
       minPeriod: 1, 
       maxPeriod: 3,
@@ -171,6 +209,22 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
         }
       ),
     );           // Add the button to the game
+  }
+
+  PickupType getPickupType() {
+    if (_pickupPool.isEmpty) {
+      _pickupPool.addAll(PickupType.values);
+    }
+
+    final chosenType = _pickupPool[_random.nextInt(_pickupPool.length)];
+
+    // Remove all instances of the chosen type
+    _pickupPool.removeWhere((pickupType) => pickupType == chosenType);
+
+    // Add one instance of each PickupType (including the chosen one)
+    _pickupPool.addAll(PickupType.values);
+
+    return chosenType;
   }
 
   void _createScoreDisplay() {
@@ -202,7 +256,7 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
   }
 
   void _createLifeDisplay() {
-    _playerLifes = 3;
+    _playerLifes = _playerMaxLife;
 
     _lifeDisplay = TextComponent(
       text: 'Life: $_playerLifes',
@@ -234,10 +288,20 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     
     _lifeDisplay.textRenderer = TextPaint(
       style: _lifeDisplayStyle.copyWith(
-        color: color, // 🔁 change only the color
+        color: color, 
       ),
     );
 
+    final popEffect = ScaleEffect.to(
+      Vector2.all(1.5), 
+      EffectController(
+        duration: 0.25,
+        alternate: true,
+        curve: Curves.easeInOut,
+      )
+    );
+
+    _lifeDisplay.add(popEffect);
   }
 
   void incrementScore(int amount) {
@@ -254,6 +318,32 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
     );
 
     _scoreDisplay.add(popEffect);
+
+    _handleAsteroidSpawnerUpdate();
+  }
+
+  void _handleAsteroidSpawnerUpdate() {
+    final int baseScore = 4500;
+    final int step = 400;
+
+    final double startMin = 0.60;
+    final double startMax = 1.10;
+    final double endMin = 0.35;
+    final double endMax = 0.60;
+
+    final int steps = 20;
+    final double minStepSize = (startMin - endMin) / steps;
+    final double maxStepSize = (startMax - endMax) / steps;
+
+    for (int i = steps; i >= 0; i--) {
+      final int threshold = baseScore + i * step;
+      if (_score > threshold) {
+        final double newMin = startMin - i * minStepSize;
+        final double newMax = startMax - i * maxStepSize;
+        _updateAsteroidSpawner(newMin, newMax);
+        break;
+      }
+    }
   }
 
   void _createStars() {
@@ -279,7 +369,7 @@ class GameMain extends FlameGame with HasKeyboardHandlerComponents, HasCollision
 
     _score = 0;
     _scoreDisplay.text = '0';
-    _playerLifes = 3;
+    _playerLifes = _playerMaxLife;
 
     _lifeDisplay.text = 'Life: $_playerLifes';
     
