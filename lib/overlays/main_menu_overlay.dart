@@ -34,7 +34,6 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
   }
 
   void _checkScoreBugDialog() async {
-    print('_scoreBugDialogChecked: $_scoreBugDialogChecked');
     if (_scoreBugDialogChecked) return;
     _scoreBugDialogChecked = true;
     final bestScore = await StorageManager().getSavedInt(StorageKey.score) ?? 0;
@@ -332,7 +331,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
             children: [
               const Text(
                 'About Space Adventure',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20, decoration: TextDecoration.none),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -342,12 +341,12 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
                     children: const [
                       Text(
                         "Blast through an asteroid field in a fast, arcade-style shooter inspired by the classics. It's simple to pick up, but mastery takes focus and a cool head.",
-                        style: TextStyle(color: Colors.white70, height: 1.3),
+                        style: TextStyle(color: Colors.white70, height: 1.3, fontSize: 16, decoration: TextDecoration.none),
                       ),
                       SizedBox(height: 16),
                       Text(
                         "Quick Tips:",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16, decoration: TextDecoration.none),
                       ),
                       SizedBox(height: 8),
                       _Bullet(text: "Do not move all the time—only when there is a reason."),
@@ -404,7 +403,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
             children: [
               const Text(
                 'Terms of Use',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20, decoration: TextDecoration.none),
               ),
               const SizedBox(height: 12),
               const Expanded(
@@ -414,7 +413,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
                     "By playing, you agree that the creators and publishers are not liable for any damages, losses, or issues arising from the use of the game, including data loss, device problems, or any other direct or indirect consequences. "
                     "You are responsible for your own gameplay decisions and for complying with your local laws. "
                     "If you do not agree with these terms, please do not play.",
-                    style: TextStyle(color: Colors.white70, height: 1.35),
+                    style: TextStyle(color: Colors.white70, height: 1.35, fontSize: 16, decoration: TextDecoration.none),
                   ),
                 ),
               ),
@@ -452,11 +451,11 @@ class _Bullet extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("• ", style: TextStyle(color: Colors.white70, height: 1.35)),
+          const Text("• ", style: TextStyle(color: Colors.white70, height: 1.35, fontSize: 16, decoration: TextDecoration.none)),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(color: Colors.white70, height: 1.35),
+              style: const TextStyle(color: Colors.white70, height: 1.35, fontSize: 16, decoration: TextDecoration.none),
             ),
           ),
         ],
