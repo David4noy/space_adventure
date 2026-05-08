@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:space_adventure/Utiles/overlay_item.dart';
 import 'package:space_adventure/Utiles/storage_manager.dart';
 import 'package:space_adventure/game_main.dart';
+import 'package:space_adventure/overlays/score_bug_dialog.dart';
+import 'package:space_adventure/overlays/reset_best_score_dialog.dart';
 
 class MainMenuOverlay extends StatefulWidget {
   final GameMain game;
@@ -14,6 +16,7 @@ class MainMenuOverlay extends StatefulWidget {
 class _MainMenuOverlayState extends State<MainMenuOverlay> {
   double _opacity = 0.0;
   String _bestScore = 'Not set yet!\nPlay to get the best score';
+  bool _scoreBugDialogChecked = false;
 
   // Internal modals (no Navigator / no Overlay.of)
   bool _aboutOpen = false;
@@ -26,6 +29,24 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
     Future.microtask(() {
       if (mounted) setState(() => _opacity = 1.0);
     });
+    // Show score bug dialog after first build
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkScoreBugDialog());
+  }
+
+  void _checkScoreBugDialog() async {
+    print('_scoreBugDialogChecked: $_scoreBugDialogChecked');
+    if (_scoreBugDialogChecked) return;
+    _scoreBugDialogChecked = true;
+    final bestScore = await StorageManager().getSavedInt(StorageKey.score) ?? 0;
+    if (!mounted) return;
+    // ignore: use_build_context_synchronously
+    await ScoreBugDialog.showIfNeeded(context, bestScore, _resetScore);
+  }
+
+  void _resetScore() async {
+    await StorageManager().saveInt(StorageKey.score, 0);
+    if (!mounted) return;
+    setState(() => _bestScore = '0');
   }
 
   @override
@@ -84,21 +105,90 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
         children: [
           _buildBestScoreText(),
           const SizedBox(height: 40),
-          SizedBox(width: 270, child: Image.asset('assets/images/menu_icon.png')),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () {
-              widget.game.audioManager.playSound('start');
-              widget.game.startGame();
-              setState(() => _opacity = 0.0);
-            },
-            child: SizedBox(
-              width: 200,
-              child: Image.asset('assets/images/start_button.png'),
-            ),
-          ),
+          SizedBox(width: 200, child: Image.asset('assets/images/menu_icon.png')),
+          buildStartButton(),
+          const SizedBox(height: 16),
+          buildResetBestScoreButton(),
+          const SizedBox(height: 40),
         ],
       ),
+    );
+  }
+
+  Widget buildStartButton() {
+    return GestureDetector(
+      onTap: () {
+        widget.game.audioManager.playSound('start');
+        widget.game.startGame();
+        setState(() => _opacity = 0.0);
+      },
+      child: SizedBox(
+        width: 200,
+        child: Image.asset('assets/images/start_button.png'),
+      ),
+    );
+  }
+
+  Widget buildResetBestScoreButton() {
+    return SizedBox(
+      width: 200,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.fromARGB(180, 40, 0, 80),
+              Color.fromARGB(180, 74, 13, 104),
+              Color.fromARGB(180, 40, 0, 80),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color.fromARGB(255, 89, 17, 120),
+            width: 2.2,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black54,
+              blurRadius: 10,
+              spreadRadius: 1,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: _showResetBestScoreDialog,
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: const Text(
+                'Reset Best Score',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showResetBestScoreDialog() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return ResetBestScoreDialog(onConfirm: _resetScore);
+      },
     );
   }
 
@@ -110,6 +200,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
         color: Color.fromARGB(255, 187, 230, 32),
         fontSize: 24,
         fontWeight: FontWeight.bold,
+        decoration: TextDecoration.none,
       ),
     );
   }
@@ -182,9 +273,12 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
       style: TextButton.styleFrom(
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
       ),
-      child: Text(label),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
+      ),
     );
   }
 
@@ -272,7 +366,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
                   ),
                   child: const Text('Close'),
                 ),
@@ -332,7 +426,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
                   ),
                   child: const Text('Agree & Close'),
                 ),

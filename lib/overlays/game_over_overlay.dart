@@ -93,6 +93,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
         color: Color.fromARGB(255, 187, 230, 32),
         fontSize: 36,
         fontWeight: FontWeight.bold,
+        decoration: TextDecoration.none,
       ),
     );
   }
@@ -104,6 +105,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
         color: Colors.white,
         fontSize: 48,
         fontWeight: FontWeight.bold,
+        decoration: TextDecoration.none,
       ),
     );
   }
@@ -133,6 +135,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
         style: TextStyle(
           color: Colors.white,
           fontSize: 28,
+          decoration: TextDecoration.none,
         ),
       )
     );
@@ -163,6 +166,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
         style: TextStyle(
           color: Colors.white,
           fontSize: 28,
+          decoration: TextDecoration.none,
         ),
       )
     );
