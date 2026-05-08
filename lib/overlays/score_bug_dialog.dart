@@ -7,7 +7,7 @@ class ScoreBugDialog {
   static Future<void> showIfNeeded(BuildContext context, int score, VoidCallback onResetScore) async {
     final prefs = await SharedPreferences.getInstance();
     final dontShowAgain = prefs.getBool(_dontShowAgainKey) ?? false;
-    if (dontShowAgain || score <= 500) return;
+    if (dontShowAgain || score <= 20000) return;
     if (!context.mounted) return;
 
     showDialog(
@@ -199,7 +199,7 @@ class _NoUnderlineText extends StatelessWidget {
   final String data;
   final TextStyle? style;
   final TextAlign? textAlign;
-  const _NoUnderlineText(this.data, {this.style, this.textAlign, super.key});
+  const _NoUnderlineText(this.data, {this.style, this.textAlign});
   @override
   Widget build(BuildContext context) {
     return Text(
