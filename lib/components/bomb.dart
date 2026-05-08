@@ -43,7 +43,7 @@ class Bomb extends SpriteComponent with HasGameReference<GameMain>, CollisionCal
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
 
-    if (other is Asteroid) {
+    if (other is Asteroid && other.health > 0) {
       other.takeDamage(damage: 1);
     }
   }

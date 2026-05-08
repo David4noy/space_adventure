@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:space_adventure/Utiles/overlay_item.dart';
 import 'package:space_adventure/Utiles/storage_manager.dart';
 import 'package:space_adventure/game_main.dart';
+import 'package:space_adventure/overlays/score_bug_dialog.dart';
+import 'package:space_adventure/overlays/reset_best_score_dialog.dart';
 
 class MainMenuOverlay extends StatefulWidget {
   final GameMain game;
@@ -14,6 +16,7 @@ class MainMenuOverlay extends StatefulWidget {
 class _MainMenuOverlayState extends State<MainMenuOverlay> {
   double _opacity = 0.0;
   String _bestScore = 'Not set yet!\nPlay to get the best score';
+  bool _scoreBugDialogChecked = false;
 
   // Internal modals (no Navigator / no Overlay.of)
   bool _aboutOpen = false;
@@ -26,6 +29,23 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
     Future.microtask(() {
       if (mounted) setState(() => _opacity = 1.0);
     });
+    // Show score bug dialog after first build
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkScoreBugDialog());
+  }
+
+  void _checkScoreBugDialog() async {
+    if (_scoreBugDialogChecked) return;
+    _scoreBugDialogChecked = true;
+    final bestScore = await StorageManager().getSavedInt(StorageKey.score) ?? 0;
+    if (!mounted) return;
+    // ignore: use_build_context_synchronously
+    await ScoreBugDialog.showIfNeeded(context, bestScore, _resetScore);
+  }
+
+  void _resetScore() async {
+    await StorageManager().saveInt(StorageKey.score, 0);
+    if (!mounted) return;
+    setState(() => _bestScore = '0');
   }
 
   @override
@@ -84,21 +104,90 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
         children: [
           _buildBestScoreText(),
           const SizedBox(height: 40),
-          SizedBox(width: 270, child: Image.asset('assets/images/menu_icon.png')),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () {
-              widget.game.audioManager.playSound('start');
-              widget.game.startGame();
-              setState(() => _opacity = 0.0);
-            },
-            child: SizedBox(
-              width: 200,
-              child: Image.asset('assets/images/start_button.png'),
-            ),
-          ),
+          SizedBox(width: 200, child: Image.asset('assets/images/menu_icon.png')),
+          buildStartButton(),
+          const SizedBox(height: 16),
+          buildResetBestScoreButton(),
+          const SizedBox(height: 40),
         ],
       ),
+    );
+  }
+
+  Widget buildStartButton() {
+    return GestureDetector(
+      onTap: () {
+        widget.game.audioManager.playSound('start');
+        widget.game.startGame();
+        setState(() => _opacity = 0.0);
+      },
+      child: SizedBox(
+        width: 200,
+        child: Image.asset('assets/images/start_button.png'),
+      ),
+    );
+  }
+
+  Widget buildResetBestScoreButton() {
+    return SizedBox(
+      width: 200,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.fromARGB(180, 40, 0, 80),
+              Color.fromARGB(180, 74, 13, 104),
+              Color.fromARGB(180, 40, 0, 80),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color.fromARGB(255, 89, 17, 120),
+            width: 2.2,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black54,
+              blurRadius: 10,
+              spreadRadius: 1,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: _showResetBestScoreDialog,
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: const Text(
+                'Reset Best Score',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showResetBestScoreDialog() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return ResetBestScoreDialog(onConfirm: _resetScore);
+      },
     );
   }
 
@@ -110,6 +199,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
         color: Color.fromARGB(255, 187, 230, 32),
         fontSize: 24,
         fontWeight: FontWeight.bold,
+        decoration: TextDecoration.none,
       ),
     );
   }
@@ -182,9 +272,12 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
       style: TextButton.styleFrom(
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
       ),
-      child: Text(label),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
+      ),
     );
   }
 
@@ -238,7 +331,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
             children: [
               const Text(
                 'About Space Adventure',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20, decoration: TextDecoration.none),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -248,12 +341,12 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
                     children: const [
                       Text(
                         "Blast through an asteroid field in a fast, arcade-style shooter inspired by the classics. It's simple to pick up, but mastery takes focus and a cool head.",
-                        style: TextStyle(color: Colors.white70, height: 1.3),
+                        style: TextStyle(color: Colors.white70, height: 1.3, fontSize: 16, decoration: TextDecoration.none),
                       ),
                       SizedBox(height: 16),
                       Text(
                         "Quick Tips:",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16, decoration: TextDecoration.none),
                       ),
                       SizedBox(height: 8),
                       _Bullet(text: "Do not move all the time—only when there is a reason."),
@@ -272,7 +365,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
                   ),
                   child: const Text('Close'),
                 ),
@@ -310,7 +403,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
             children: [
               const Text(
                 'Terms of Use',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20, decoration: TextDecoration.none),
               ),
               const SizedBox(height: 12),
               const Expanded(
@@ -320,7 +413,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
                     "By playing, you agree that the creators and publishers are not liable for any damages, losses, or issues arising from the use of the game, including data loss, device problems, or any other direct or indirect consequences. "
                     "You are responsible for your own gameplay decisions and for complying with your local laws. "
                     "If you do not agree with these terms, please do not play.",
-                    style: TextStyle(color: Colors.white70, height: 1.35),
+                    style: TextStyle(color: Colors.white70, height: 1.35, fontSize: 16, decoration: TextDecoration.none),
                   ),
                 ),
               ),
@@ -332,7 +425,7 @@ class _MainMenuOverlayState extends State<MainMenuOverlay> {
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
                   ),
                   child: const Text('Agree & Close'),
                 ),
@@ -358,11 +451,11 @@ class _Bullet extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("• ", style: TextStyle(color: Colors.white70, height: 1.35)),
+          const Text("• ", style: TextStyle(color: Colors.white70, height: 1.35, fontSize: 16, decoration: TextDecoration.none)),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(color: Colors.white70, height: 1.35),
+              style: const TextStyle(color: Colors.white70, height: 1.35, fontSize: 16, decoration: TextDecoration.none),
             ),
           ),
         ],

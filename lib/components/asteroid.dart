@@ -18,6 +18,7 @@ class Asteroid extends SpriteComponent with HasGameReference<GameMain> {
   late double _health;
   bool _isKnockBack = false;
   String _image = 'asteroid1.png';
+  double get health => _health;
 
   Asteroid({required super.position, required this.currnetScore,  double size = _maxSize}) 
     : super (

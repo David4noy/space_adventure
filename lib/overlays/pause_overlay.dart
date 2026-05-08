@@ -78,6 +78,7 @@ class _PauseOverlayState extends State<PauseOverlay> {
         style: TextStyle(
           color: Colors.white,
           fontSize: 36,
+          decoration: TextDecoration.none,
         ),
       )
     );
